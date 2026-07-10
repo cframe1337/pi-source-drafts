@@ -10,11 +10,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hackt/pi-source-drafts.git"
+    "url": "git+https://github.com/cframe1337/pi-source-drafts.git"
   },
-  "homepage": "https://github.com/hackt/pi-source-drafts#readme",
+  "homepage": "https://github.com/cframe1337/pi-source-drafts#readme",
   "bugs": {
-    "url": "https://github.com/hackt/pi-source-drafts/issues"
+    "url": "https://github.com/cframe1337/pi-source-drafts/issues"
   },
   "pi": {
     "extensions": ["./src/index.ts"],
