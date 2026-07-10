@@ -15,6 +15,6 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - run: bun test
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+          npm publish
