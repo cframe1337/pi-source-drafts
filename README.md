@@ -8,7 +8,7 @@ Web searches, fetched pages, GitHub analysis, and user-provided external context
 
 ```bash
 # Install globally for auto-discovery
-git clone https://github.com/hackt/pi-source-drafts ~/.pi/agent/extensions/pi-source-drafts
+git clone https://github.com/cframe1337/pi-source-drafts ~/.pi/agent/extensions/pi-source-drafts
 
 # Reload extensions
 # Then in pi: /reload
