@@ -1,0 +1,31 @@
+{
+  "name": "pi-source-drafts",
+  "version": "0.1.0",
+  "description": "Auto-capture external source information (web search, fetch, user input) as structured Markdown drafts",
+  "type": "module",
+  "license": "MIT",
+  "keywords": ["pi-agent", "pi-coding-agent", "extension", "drafts", "persistence", "source-capture"],
+  "author": {
+    "name": "pi-source-drafts contributors"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hackt/pi-source-drafts.git"
+  },
+  "homepage": "https://github.com/hackt/pi-source-drafts#readme",
+  "bugs": {
+    "url": "https://github.com/hackt/pi-source-drafts/issues"
+  },
+  "pi": {
+    "extensions": ["./src/index.ts"],
+    "skills": ["./skills/pi-source-drafts/SKILL.md"]
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "^0.80.6",
+    "@earendil-works/pi-ai": "^0.80.6",
+    "typebox": "^1.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1"
+  }
+}
