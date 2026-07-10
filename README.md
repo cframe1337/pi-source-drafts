@@ -1,5 +1,7 @@
 # pi-source-drafts
 
+[![test](https://github.com/cframe1337/pi-source-drafts/actions/workflows/test.yml/badge.svg)](https://github.com/cframe1337/pi-source-drafts/actions/workflows/test.yml)
+
 **Persistent draft storage for information discovered during pi coding sessions.**
 
 Web searches, fetched pages, GitHub analysis, and user-provided external context are ephemeral — they vanish on session end or compaction. This extension preserves them as structured Markdown draft files in `~/.pi/source-drafts/`.

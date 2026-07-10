@@ -163,8 +163,15 @@ function folderName(sourceType: string, title: string): string {
 	return `src-${sourceType}-${ts}-${slug.slice(0, 24)}-${shortId()}`;
 }
 
+/** Extract the body of a named ## section from markdown content. Returns empty string if not found. */
+export function getSectionBody(content: string, headingName: string): string {
+	const sections = splitIntoSections(content, "");
+	const match = sections.find(s => s.heading.trim() === headingName);
+	return match ? match.body : "";
+}
+
 /** Split markdown content into sections by ## headings */
-function splitIntoSections(content: string, title: string): { heading: string; body: string }[] {
+export function splitIntoSections(content: string, title: string): { heading: string; body: string }[] {
 	const sections: { heading: string; body: string }[] = [];
 	const lines = content.split("\n");
 	let currentHeading = "(preamble)";
