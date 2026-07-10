@@ -5,6 +5,7 @@
   "type": "module",
   "license": "MIT",
   "keywords": [
+    "pi-package",
     "pi-agent",
     "pi-coding-agent",
     "extension",
