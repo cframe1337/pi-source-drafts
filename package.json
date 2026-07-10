@@ -1,10 +1,17 @@
 {
   "name": "pi-source-drafts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Auto-capture external source information (web search, fetch, user input) as structured Markdown drafts",
   "type": "module",
   "license": "MIT",
-  "keywords": ["pi-agent", "pi-coding-agent", "extension", "drafts", "persistence", "source-capture"],
+  "keywords": [
+    "pi-agent",
+    "pi-coding-agent",
+    "extension",
+    "drafts",
+    "persistence",
+    "source-capture"
+  ],
   "author": {
     "name": "pi-source-drafts contributors"
   },
@@ -17,8 +24,12 @@
     "url": "https://github.com/cframe1337/pi-source-drafts/issues"
   },
   "pi": {
-    "extensions": ["./src/index.ts"],
-    "skills": ["./skills/pi-source-drafts/SKILL.md"]
+    "extensions": [
+      "./src/index.ts"
+    ],
+    "skills": [
+      "./skills/pi-source-drafts/SKILL.md"
+    ]
   },
   "files": [
     "src/",
