@@ -7,14 +7,17 @@ Web searches, fetched pages, GitHub analysis, and user-provided external context
 ## Quick Start
 
 ```bash
-# Install globally for auto-discovery
-git clone https://github.com/cframe1337/pi-source-drafts ~/.pi/agent/extensions/pi-source-drafts
+# Via npm (recommended)
+npm install pi-source-drafts
 
-# Reload extensions
-# Then in pi: /reload
+# Or via pi
+pi install pi-source-drafts
+
+# Or clone directly for development
+git clone https://github.com/cframe1337/pi-source-drafts ~/.pi/agent/extensions/pi-source-drafts
 ```
 
-Or use in a single session:
+Reload extensions (`/reload` in pi) or use in a single session:
 
 ```bash
 pi -e ~/.pi/agent/extensions/pi-source-drafts/src/index.ts
@@ -82,7 +85,7 @@ Each draft stores the project directory and pi session it was captured in. Searc
 ## Features
 
 - **Auto-capture** — web searches, fetched pages, and context-mode tool results are saved automatically
-- **Content de-duplication** — SHA256 hash prevents duplicate saves
+- **Content de-duplication** — FNV-1a hash prevents duplicate saves
 - **Section-level indexing** — `##` headings are indexed separately for precise search results
 - **Project/session context** — each draft records the project directory and pi session, search prioritises current context
 - **Model tracking** — each draft records the LLM provider/model used during capture
@@ -111,7 +114,6 @@ Drafts never leave your machine — they are stored locally only.
 ## Development
 
 ```bash
-# Dependencies are runtime-resolved by pi (no npm install needed)
 # Compile check:
 cd ~/.pi/agent/extensions/pi-source-drafts
 npx tsc --noEmit

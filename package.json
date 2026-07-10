@@ -20,6 +20,13 @@
     "extensions": ["./src/index.ts"],
     "skills": ["./skills/pi-source-drafts/SKILL.md"]
   },
+  "files": [
+    "src/",
+    "skills/",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "@earendil-works/pi-coding-agent": "^0.80.6",
     "@earendil-works/pi-ai": "^0.80.6",
