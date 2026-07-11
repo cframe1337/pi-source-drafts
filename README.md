@@ -9,17 +9,15 @@ Web searches, fetched pages, GitHub analysis, and user-provided external context
 ## Quick Start
 
 ```bash
-# Via npm (recommended)
 npm install pi-source-drafts
+# or
+pi install npm:pi-source-drafts
 
-# Or via pi
-pi install pi-source-drafts
-
-# Or clone directly for development
+# dev clone
 git clone https://github.com/cframe1337/pi-source-drafts ~/.pi/agent/extensions/pi-source-drafts
 ```
 
-Reload extensions (`/reload` in pi) or use in a single session:
+Reload extensions (`/reload` in pi) or run a single session:
 
 ```bash
 pi -e ~/.pi/agent/extensions/pi-source-drafts/src/index.ts
@@ -29,10 +27,12 @@ pi -e ~/.pi/agent/extensions/pi-source-drafts/src/index.ts
 
 | Trigger | Action |
 |---------|--------|
-| `web_search` tool result | Auto-captures query + results as a draft |
-| `fetch_content` tool result | Auto-captures URL + content as a draft |
+| Tool call (captured via `tool_result` hook) | Action |
+|------------|--------|
+| `web_search` | Auto-captures query + results as a draft |
+| `fetch_content` | Auto-captures URL + content as a draft |
 | `ctx_execute` / `ctx_execute_file` / `ctx_batch_execute` | Auto-captures execution output |
-| `ctx_index` tool result | Auto-captures indexed content |
+| `ctx_index` | Auto-captures indexed content |
 | LLM calls `save_draft(...)` | Saves structured info (by source type) |
 | LLM calls `search_drafts(...)` | Searches saved drafts with relevance ranking |
 | LLM calls `draft_bundle(...)` | Combines multiple drafts into a research brief |
@@ -48,7 +48,9 @@ pi -e ~/.pi/agent/extensions/pi-source-drafts/src/index.ts
 /drafts delete <id>            Remove a draft
 /drafts export <id>            Export as standalone markdown
 /drafts bundle <name> <ids>    Combine drafts into a research brief
-/drafts compact                Rebuild search index (remove orphans)
+/drafts compact                Write index snapshot
+/drafts compact-content        Compact the binary content store
+/drafts cc                     Alias for compact-content
 /drafts stats                  Show statistics by source type
 /save-source <title> | <text>  Save external info manually
 ```
@@ -61,18 +63,40 @@ pi -e ~/.pi/agent/extensions/pi-source-drafts/src/index.ts
 | `search_drafts(query, sourceType?, tags?, limit?)` | Search saved drafts by keywords, type, or tags — current project and session results rank higher |
 | `draft_bundle(title, draftIds)` | Combine multiple related drafts into one research brief |
 
-## Storage Layout
+## Storage Layout (v0.2+)
 
 ```
 ~/.pi/source-drafts/
-├── index.json              # Draft registry (id, title, type, date, tags, project, session, model)
-├── search.idx              # Inverted index for fast full-text search
+├── journal.jsonl           # Append-only WAL (single source of truth)
+├── index.snapshot          # Binary checkpoint (fast startup)
+├── index.format            # Format version marker
+├── drafts.cdb              # Binary content store (optional, hot cache)
 └── src-web_search-.../
-    ├── draft.md            # Structured Markdown content
-    └── meta.json           # Machine metadata (project, session, model, tags, url)
+    ├── draft.md            # Structured Markdown content (backward compat)
+    └── meta.json           # Machine metadata
 ```
 
-Each draft stores the project directory and pi session it was captured in. Search results from the current project and session get boosted relevance.
+**v0.1 auto-migrates on first run** — old `index.json` + `search.idx` are converted to `journal.jsonl` and deleted.
+
+## Search Architecture (v0.2)
+
+Inverted word index **held in RAM** — zero disk I/O for search queries.
+TF-IDF ranking with per-term document frequency + log-scaled term frequency.
+Titles weighted 2×, body 1×. Current project (+5) and session (+10) boost.
+
+**v0.1 vs v0.2 performance (benchmarked):**
+
+| Operation | v0.1 (200 docs) | v0.2 (200 docs) |
+|-----------|-----------------|-----------------|
+| Save | ~60 ms (rewrites whole search.idx) | **1.3 ms** (append journal only) |
+| Search "deep dive" | ~5 ms | **3-5 ms** (no disk read) |
+| Search "JavaScript" | ~3 ms | **3 ms** |
+| Delete all 200 | ~5-15 s (rm -rf per folder) | **240 ms** (journal append + memory) |
+| Startup cold | ~100 ms (parse JSON idx) | **34 ms** (snapshot + short replay) |
+
+No more JSON index rewrite. No more slow deletes. No more startup lag.
+
+Delete is instant: one `{"op":"delete"}` line appended to the journal + removed from memory index. File cleanup is background.
 
 ## Source Types
 
@@ -91,24 +115,24 @@ Each draft stores the project directory and pi session it was captured in. Searc
 - **Section-level indexing** — `##` headings are indexed separately for precise search results
 - **Project/session context** — each draft records the project directory and pi session, search prioritises current context
 - **Model tracking** — each draft records the LLM provider/model used during capture
-- **Secret redaction** — API keys, tokens, and private keys are automatically stripped before writing
+- **Secret redaction** — API keys, tokens, private keys, SSN, credit cards, phone numbers are automatically stripped before writing
 - **Draft bundling** — combine related drafts into a single research brief
 - **Export** — single drafts can be exported as standalone markdown with YAML frontmatter
-
-## Search Architecture
-
-Drafts are indexed with an inverted word index (persisted as `search.idx`). Queries are tokenised with stop-word removal, matched against titles (weighted 3×) and content (weighted 1×), and ranked by cumulative score. Results from the current project (+5 boost) and session (+10 boost) rank higher.
-
-A 500-file search completes in O(k·|q|) where k ≈ matched draft count per term.
+- **Binary content store** — optional fast content cache (`drafts.cdb`), append-only with tombstone delete and in-place compaction
+- **Write queue** — FIFO serialization for concurrent writes, reads are lock-free
 
 ## Security
 
 Credentials are automatically redacted before writing:
 
-- API keys (`sk-...`, `AKIA...`)
-- Private keys (RSA, EC, OpenSSH)
-- GitHub tokens (`github_pat_...`)
+- API keys (`sk-...`, `pk-...`, `rk-...`)
+- AWS keys (`AKIA...`, `ASIA...`)
+- Private keys (RSA, EC, OpenSSH, DSA)
+- GitHub tokens (`github_pat_...`, `ghp_...`)
 - Bearer tokens
+- SSN (`\d{3}-\d{2}-\d{4}`)
+- Credit cards (major formats)
+- Phone numbers (CIS + US)
 - Generic `api_key`, `secret`, `password`, `token` patterns
 
 Drafts never leave your machine — they are stored locally only.
@@ -116,15 +140,25 @@ Drafts never leave your machine — they are stored locally only.
 ## Development
 
 ```bash
-# Compile check:
-cd ~/.pi/agent/extensions/pi-source-drafts
-npx tsc --noEmit
+bun test              # 71 tests, ~3s
+bun test --timeout 120 # includes benchmarks
+```
 
-# Project structure:
-#   src/index.ts        — Extension entry: hooks, tools, commands
-#   src/draft-store.ts  — File I/O, secret scanner, search
-#   skills/             — Skill definitions
-#   package.json        — Extension metadata
+Project structure:
+
+```
+src/
+├── index.ts              # Extension entry: hooks, tools, commands
+├── draft-store.ts        # Façade: Journal + MemoryIndex + ContentStore + WriteQueue
+├── rw-queue.ts           # FIFO write queue
+├── journal.ts            # Append-only WAL + snapshot
+├── memory-index.ts       # In-memory inverted index + TF-IDF
+├── content-store.ts      # Binary content store (CDB)
+├── scanner.ts            # Security scanner v2
+├── migration.ts          # v0.1 → v0.2 converter
+├── *.test.ts             # Tests + benchmarks
+skills/                   # Skill definitions
+ARCHITECTURE.md           # Full design document
 ```
 
 ## License

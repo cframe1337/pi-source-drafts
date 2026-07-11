@@ -204,7 +204,6 @@ async function handleCtxExecuteResult(
 }
 
 // Extension entry
-
 export default function (pi: ExtensionAPI): void {
 	pi.on("session_start", async (_event, _ctx) => {
 		await draftStore.init();
@@ -459,6 +458,15 @@ export default function (pi: ExtensionAPI): void {
 			if ((sub === "compact" || sub === "gc")) {
 				const { removed } = await draftStore.compactIndex();
 				ctx.ui.notify(`Index compacted. Removed ${removed} orphaned entries.`, "info");
+				return;
+			}
+
+			if ((sub === "compact-content" || sub === "cc")) {
+				const result = await draftStore.compactContent();
+				ctx.ui.notify(result
+					? `Content store compacted: ${result.before} → ${result.after} entries.`
+					: "Content store not available.",
+					"info");
 				return;
 			}
 
