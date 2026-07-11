@@ -7,7 +7,7 @@ import { DraftStore } from "./draft-store.ts";
 const SIZES = [10, 50, 200];
 
 function tmpBenchDir(name: string): string {
-  const dir = join(tmpdir(), `bench-${name}-${Date.now()}`);
+  const dir = join(tmpdir(), `bench-${name}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
   return dir;

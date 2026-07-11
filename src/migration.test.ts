@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { DraftStore } from "./draft-store.ts";
 
 function tmpV1Dir(name: string): string {
-  const dir = join(tmpdir(), `migration-v1-${name}-${Date.now()}`);
+  const dir = join(tmpdir(), `migration-v1-${name}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
   return dir;

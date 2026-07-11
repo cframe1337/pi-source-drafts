@@ -1,11 +1,11 @@
-import { describe, expect, test, beforeEach } from "bun:test";
-import { mkdirSync } from "node:fs";
+import { describe, expect, test, beforeEach, afterEach } from "bun:test";
+import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { ContentStore } from "./content-store.ts";
 
 function tmpDb(name: string): string {
-  const dir = join(tmpdir(), `content-store-${name}-${Date.now()}`);
+  const dir = join(tmpdir(), `content-store-${name}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
   mkdirSync(dir, { recursive: true });
   return join(dir, "drafts.cdb");
 }
@@ -17,6 +17,10 @@ describe("ContentStore", () => {
   beforeEach(() => {
     path = tmpDb("test");
     db = new ContentStore(path);
+  });
+
+  afterEach(() => {
+    try { rmSync(join(path, ".."), { recursive: true, force: true }); } catch {}
   });
 
   test("new store has size 0", () => {
