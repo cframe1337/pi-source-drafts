@@ -1,6 +1,6 @@
 {
   "name": "pi-source-drafts",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Auto-capture external source information (web search, fetch, user input) as structured Markdown drafts",
   "type": "module",
   "license": "MIT",
