@@ -6,8 +6,6 @@
 [![GitHub stars](https://img.shields.io/github/stars/cframe1337/pi-source-drafts)](https://github.com/cframe1337/pi-source-drafts)
 [![License](https://img.shields.io/github/license/cframe1337/pi-source-drafts)](https://github.com/cframe1337/pi-source-drafts)
 
-**2849 lines of TypeScript · 7 modules · 71 tests**
-
 **Persistent draft storage for information discovered during pi coding sessions.**
 
 Web searches, fetched pages, GitHub analysis, and user-provided external context are ephemeral — they vanish on session end or compaction. This extension preserves them as structured Markdown draft files in `~/.pi/source-drafts/`.
