@@ -1,5 +1,5 @@
-import { describe, expect, test, beforeEach } from "bun:test";
-import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
+import { describe, expect, test, beforeEach, afterEach } from "bun:test";
+import { mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -12,19 +12,19 @@ import {
 } from "./journal.ts";
 
 function tmpJournal(name: string): string {
-  const dir = join(tmpdir(), `journal-test-${name}-${Date.now()}`);
+  const dir = join(tmpdir(), `journal-test-${name}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
   mkdirSync(dir, { recursive: true });
   return join(dir, "journal.jsonl");
 }
 
 function tmpSnapshot(name: string): string {
-  const dir = join(tmpdir(), `snap-test-${name}-${Date.now()}`);
+  const dir = join(tmpdir(), `snap-test-${name}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
   mkdirSync(dir, { recursive: true });
   return join(dir, "index.snapshot");
 }
 
 function tmpDir(name: string): string {
-  const dir = join(tmpdir(), `fmt-test-${name}-${Date.now()}`);
+  const dir = join(tmpdir(), `fmt-test-${name}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
   mkdirSync(dir, { recursive: true });
   return dir;
 }
@@ -43,9 +43,18 @@ function makeSave(id: string, overrides?: Partial<SaveOp>): SaveOp {
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 describe("journal append / read / replay", () => {
+  let dir: string;
   let path: string;
 
-  beforeEach(() => { path = tmpJournal("basic"); });
+  beforeEach(() => {
+    dir = join(tmpdir(), `journal-test-append-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
+    mkdirSync(dir, { recursive: true });
+    path = join(dir, "journal.jsonl");
+  });
+
+  afterEach(() => {
+    try { rmSync(dir, { recursive: true, force: true }); } catch {}
+  });
 
   test("appendOp writes one JSON line", () => {
     const op: SaveOp = makeSave("doc-1");
