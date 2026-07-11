@@ -1,6 +1,12 @@
 # pi-source-drafts
 
 [![test](https://github.com/cframe1337/pi-source-drafts/actions/workflows/test.yml/badge.svg)](https://github.com/cframe1337/pi-source-drafts/actions/workflows/test.yml)
+[![npm version](https://img.shields.io/npm/v/pi-source-drafts)](https://www.npmjs.com/package/pi-source-drafts)
+[![npm downloads/month](https://img.shields.io/npm/dm/pi-source-drafts)](https://www.npmjs.com/package/pi-source-drafts)
+[![GitHub stars](https://img.shields.io/github/stars/cframe1337/pi-source-drafts)](https://github.com/cframe1337/pi-source-drafts)
+[![License](https://img.shields.io/github/license/cframe1337/pi-source-drafts)](https://github.com/cframe1337/pi-source-drafts)
+
+**2849 lines of TypeScript · 7 modules · 71 tests**
 
 **Persistent draft storage for information discovered during pi coding sessions.**
 
